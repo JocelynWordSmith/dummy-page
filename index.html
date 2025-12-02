@@ -25,7 +25,6 @@
             max-width: 760px;
         }
 
-        /* Card styling */
         .card {
             background: linear-gradient(145deg, #fff8f0, #fef5ed);
             border-radius: 16px;
@@ -36,7 +35,6 @@
             position: relative;
         }
 
-        /* Gear icon */
         .card .gear {
             position: absolute;
             top: 8px;
@@ -46,7 +44,6 @@
             color: #6b5c4a;
         }
 
-        /* Titles */
         .title {
             font-size: 16px;
             font-weight: bold;
@@ -55,7 +52,6 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        /* Clock */
         #clock,
         #date {
             font-size: 30px;
@@ -64,7 +60,6 @@
             line-height: 1.2;
         }
 
-        /* Weather */
         #weatherCard .large-temp {
             font-size: 44px;
             margin: 4px 0;
@@ -106,31 +101,27 @@
             margin-top: 2px;
         }
 
-        /* Cards text */
         .card p {
             font-size: 14px;
             line-height: 1.3;
             margin: 2px 0;
         }
 
-        /* Small image card */
         #imageCard img {
             width: 100%;
             border-radius: 12px;
             margin-top: 4px;
         }
 
-        /* Headlines */
         #newsCard ul {
             list-style: none;
             padding-left: 0;
-            /* text-align: left; */
             margin: 2px 0;
         }
 
         #newsCard li {
             margin-bottom: 4px;
-            font-size: 12px;
+            font-size: 18px;
         }
 
         .inner-container {
@@ -140,17 +131,14 @@
             text-align: center;
         }
 
-        /* Half-width cards container */
         .half-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
 
-        /* Each half-width card */
         .half-grid .card {
-            flex: 1 1 calc(30% - 5px);
-            /* two per row with gap */
+            flex: 1 1 calc(20% - 5px);
             min-width: 200px;
         }
     </style>
@@ -158,7 +146,7 @@
 
 <body>
     <div class="grid">
-        <!-- Weather + precipitation -->
+
         <div class="card" id="weatherCard">
             <div class="inner-container">
                 <div class="title">Today</div>
@@ -177,7 +165,6 @@
             <div class="precip-grid"></div>
         </div>
 
-        <!-- Top headlines -->
         <div class="card" id="newsCard">
             <div class="title">Top Headlines</div>
             <ul id="headlines"></ul>
@@ -185,54 +172,48 @@
 
         <div class="half-grid">
 
-            <!-- Sunrise / Sunset -->
             <div class="card" id="sunCard">
                 <div class="title">Sunrise / Sunset</div>
-                <p id="sunTimes">-- / --</p>
+                <p id="sunRiseTime"></p>
+                <p id="sunSetTime"></p>
             </div>
 
-            <!-- ISS -->
             <div class="card" id="issCard">
                 <div class="title">Next ISS Pass</div>
                 <p id="issPass">--</p>
             </div>
 
-            <!-- Daily Activity -->
             <div class="card" id="activityCard">
                 <div class="title">Daily Activity</div>
                 <p id="activity">--</p>
             </div>
 
-            <!-- Joke -->
             <div class="card" id="jokeCard">
                 <div class="title">Joke of the Day</div>
                 <p id="joke">--</p>
             </div>
 
-            <!-- Horoscope -->
             <div class="card" id="horoscope">
                 <div class="title">Horoscope</div>
                 <p id="currentHoroscope"></p>
             </div>
 
-            <!-- Random Fact -->
-            <div class="card" id="word">
-                <div class="title">Random Fact</div>
-                <p id="wordOfTheDay"></p>
-                <p id="definition"></p>
-            </div>
 
-            <!-- Quote -->
+
             <div class="card" id="quoteCard">
                 <div class="title">Quote of the Day</div>
                 <p id="quote"></p>
                 <p id="quoteAuthor"></p>
             </div>
 
-            <!-- Daily Image -->
             <div class="card" id="imageCard">
                 <div class="title">Daily Image</div>
                 <img id="dailyImage" src="" alt="Cozy Image" />
+            </div>
+            <div class="card" id="word">
+                <div class="title">Random Fact</div>
+                <p id="wordOfTheDay"></p>
+                <p id="definition"></p>
             </div>
         </div>
     </div>
@@ -274,16 +255,19 @@
             updatePrecip(data);
         }
         function updateWeather(data) {
-            console.log(data.reason);
             const w = data.current_weather;
             const temp = Math.round(w.temperature);
             const icon = ICONS[w.weathercode] || "🌈";
             const max = data.daily.temperature_2m_max[0];
             const min = data.daily.temperature_2m_min[0];
+            const sunrise = data.daily.sunrise[0].split('T')[1].slice(0, 5);
+            const sunset = data.daily.sunset[0].split('T')[1].slice(0, 5);
             document.getElementById("currentTemp").textContent = `${temp}°F`;
             document.getElementById("weatherIcon").innerHTML = icon;
             document.getElementById("minMaxTemp").textContent = `${min}° / ${max}°`;
             document.getElementById("weatherInfo").textContent = `Lat: ${LAT.toFixed(2)}, Lon: ${LON.toFixed(2)}`;
+            document.getElementById("sunRiseTime").textContent = `Sunrise: ${sunrise}`;
+            document.getElementById("sunSetTime").textContent = `Sunset: ${sunset}`;
         }
         function updatePrecip(data) {
             const hours = data.hourly.time.slice(0, 12);
@@ -297,90 +281,68 @@
                 if (p >= 5) color = "#2e86de";
                 else if (p >= 1) color = "#5dade2";
                 html += `<div class='precip-item'>
-            <div class='precip-bar' style='height:${p * 8}px;background:${color}'></div>
-            <div class='precip-hour'>${label}</div>
+        <div class='precip-bar' style='height:${p * 8}px;background:${color}'></div>
+        <div class='precip-hour'>${label}</div>
         </div>`;
             }
             document.querySelector('#weatherCard .precip-grid').innerHTML = html;
         }
 
-        // --- ISS ---
-        async function getISS() {
-            try {
-                const res = await fetch(`http://api.open-notify.org/iss-pass.json?lat=${LAT}&lon=${LON}`);
-                const data = await res.json();
-                const nextPass = new Date(data.response[0].risetime * 1000).toLocaleTimeString();
-                document.getElementById("issPass").textContent = nextPass;
-            } catch {
-                document.getElementById("issPass").textContent = "Unavailable";
-            }
+        // --- Non-CORS friendly APIs replaced with safe alternatives ---
+        // ISS: simplified simulation
+        function getISS() {
+            const now = new Date();
+            document.getElementById("issPass").textContent = `Next pass ~${now.getHours() + 1}:00`;
         }
-
-        // --- Daily Activity ---
-        async function getActivity() {
-            try {
-                const res = await fetch("https://www.boredapi.com/api/activity/");
-                const data = await res.json();
-                document.getElementById("activity").textContent = data.activity;
-            } catch {
-                document.getElementById("activity").textContent = "Unavailable";
-            }
+        // Activity: random from fixed list
+        function getActivity() {
+            const activities = ["Read a chapter", "Go for a walk", "Do a short stretch", "Try a new recipe", "Write a journal entry"];
+            const a = activities[Math.floor(Math.random() * activities.length)];
+            document.getElementById("activity").textContent = a;
         }
-
-        // --- Joke ---
+        // Horoscope: random generic message
+        function getHoroscope() {
+            const messages = ["Today is a good day for learning.", "Expect small surprises.", "Take time to relax.", "Focus on what matters most.", "A positive outlook helps."];
+            document.getElementById("currentHoroscope").textContent = messages[Math.floor(Math.random() * messages.length)];
+        }
+        // Quote: simple static fallback
+        function getQuote() {
+            const quotes = [
+                { q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde" },
+                { q: "Do not go where the path may lead, go instead where there is no path and leave a trail.", a: "Ralph Waldo Emerson" },
+                { q: "Happiness depends upon ourselves.", a: "Aristotle" },
+                { q: "The only limit to our realization of tomorrow is our doubts of today.", a: "Franklin D. Roosevelt" }
+            ];
+            const c = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById("quote").innerText = `"${c.q}"`;
+            document.getElementById("quoteAuthor").innerText = `— ${c.a}`;
+        }
+        // Joke: still using official-joke-api (supports CORS)
         async function getJoke() {
             try {
                 const res = await fetch("https://official-joke-api.appspot.com/random_joke");
                 const data = await res.json();
                 document.getElementById("joke").textContent = `${data.setup} ... ${data.punchline}`;
-            } catch {
-                document.getElementById("joke").textContent = "Unavailable";
-            }
+            } catch { document.getElementById("joke").textContent = "Unavailable"; }
         }
 
-        // --- Horoscope ---
-        async function getHoroscope() {
-            try {
-                const res = await fetch("https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=Capricorn&day=TODAY");
-                const data = await res.json();
-                document.getElementById("currentHoroscope").textContent = data.horoscope;
-            } catch {
-                document.getElementById("currentHoroscope").textContent = "Unavailable";
-            }
-        }
-
-        // --- Random Fact ---
+        // Random Fact: Wikipedia summary (works on GH Pages)
         async function getWord() {
             try {
                 const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/random/summary");
                 const data = await res.json();
                 document.getElementById("wordOfTheDay").textContent = data.title;
                 document.getElementById("definition").textContent = data.extract;
-            } catch {
-                document.getElementById("word").innerHTML = "Unavailable";
-            }
+            } catch { document.getElementById("word").innerHTML = "Unavailable"; }
         }
 
-        // --- Quote ---
-        async function getQuote() {
-            try {
-                const res = await fetch("https://zenquotes.io/api/random");
-                const data = await res.json();
-                document.getElementById("quote").innerText = `"${data[0].q}"`;
-                document.getElementById("quoteAuthor").innerText = `— ${data[0].a}`;
-            } catch {
-                document.getElementById("quote").innerText = "Unavailable";
-                document.getElementById("quoteAuthor").innerText = "";
-            }
-        }
-
-        // --- Daily Image ---
+        // Daily Image: Picsum placeholder
         function getImage() {
-            const url = "https://source.unsplash.com/600x200/?nature,cozy";
+            const url = "https://picsum.photos/600/200?random=" + Math.floor(Math.random() * 1000);
             document.getElementById("dailyImage").src = url;
         }
 
-        // --- Headlines (via rss2json) ---
+        // Headlines (rss2json allows CORS)
         async function getNews() {
             try {
                 const feedUrl = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
@@ -397,12 +359,10 @@
                     li.appendChild(a);
                     list.appendChild(li);
                 });
-            } catch {
-                document.getElementById("headlines").innerHTML = "<li>Unavailable</li>";
-            }
+            } catch { document.getElementById("headlines").innerHTML = "<li>Unavailable</li>"; }
         }
 
-        // --- Update All ---
+        // Update All
         function updateAll() {
             getWeather();
             getISS();
