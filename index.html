@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Cozy Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            background: #f0e8de;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 760px;
+        }
+
+        /* Card styling */
+        .card {
+            background: linear-gradient(145deg, #fff8f0, #fef5ed);
+            border-radius: 16px;
+            padding: 10px 14px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eadfd2;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Gear icon */
+        .card .gear {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b5c4a;
+        }
+
+        /* Titles */
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #6b5c4a;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Clock */
+        #clock,
+        #date {
+            font-size: 30px;
+            font-weight: bold;
+            color: #65a98f;
+            line-height: 1.2;
+        }
+
+        /* Weather */
+        #weatherCard .large-temp {
+            font-size: 44px;
+            margin: 4px 0;
+        }
+
+        #weatherCard .condition-icon {
+            font-size: 36px;
+        }
+
+        #weatherInfo {
+            font-size: 13px;
+            color: #6b5c4a;
+            margin-top: 2px;
+        }
+
+        .precip-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 70px;
+            margin-top: 8px;
+        }
+
+        .precip-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        .precip-bar {
+            width: 6px;
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .precip-hour {
+            margin-top: 2px;
+        }
+
+        /* Cards text */
+        .card p {
+            font-size: 14px;
+            line-height: 1.3;
+            margin: 2px 0;
+        }
+
+        /* Small image card */
+        #imageCard img {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        /* Headlines */
+        #newsCard ul {
+            list-style: none;
+            padding-left: 0;
+            /* text-align: left; */
+            margin: 2px 0;
+        }
+
+        #newsCard li {
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .inner-container {
+            display: inline-block;
+            padding: 10px;
+            width: 40%;
+            text-align: center;
+        }
+
+        /* Half-width cards container */
+        .half-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Each half-width card */
+        .half-grid .card {
+            flex: 1 1 calc(30% - 5px);
+            /* two per row with gap */
+            min-width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid">
+        <!-- Weather + precipitation -->
+        <div class="card" id="weatherCard">
+            <div class="inner-container">
+                <div class="title">Today</div>
+                <div id="date"></div>
+                <div id="clock"></div>
+            </div>
+            <div class="inner-container">
+                <div class="title">Weather</div>
+                <div id="currentTemp" class="large-temp">°F</div>
+            </div>
+            <span class="gear" onclick="showLocationPrompt()">⚙️</span>
+            <div id="weatherIcon" class="condition-icon">🌈</div>
+            <div id="minMaxTemp">0° / 0°</div>
+            <div id="weatherInfo"></div>
+            <div class="title" style="margin-top:6px;">Precipitation (mm)</div>
+            <div class="precip-grid"></div>
+        </div>
+
+        <!-- Top headlines -->
+        <div class="card" id="newsCard">
+            <div class="title">Top Headlines</div>
+            <ul id="headlines"></ul>
+        </div>
+
+        <div class="half-grid">
+
+            <!-- Sunrise / Sunset -->
+            <div class="card" id="sunCard">
+                <div class="title">Sunrise / Sunset</div>
+                <p id="sunTimes">-- / --</p>
+            </div>
+
+            <!-- ISS -->
+            <div class="card" id="issCard">
+                <div class="title">Next ISS Pass</div>
+                <p id="issPass">--</p>
+            </div>
+
+            <!-- Daily Activity -->
+            <div class="card" id="activityCard">
+                <div class="title">Daily Activity</div>
+                <p id="activity">--</p>
+            </div>
+
+            <!-- Joke -->
+            <div class="card" id="jokeCard">
+                <div class="title">Joke of the Day</div>
+                <p id="joke">--</p>
+            </div>
+
+            <!-- Horoscope -->
+            <div class="card" id="horoscope">
+                <div class="title">Horoscope</div>
+                <p id="currentHoroscope"></p>
+            </div>
+
+            <!-- Random Fact -->
+            <div class="card" id="word">
+                <div class="title">Random Fact</div>
+                <p id="wordOfTheDay"></p>
+                <p id="definition"></p>
+            </div>
+
+            <!-- Quote -->
+            <div class="card" id="quoteCard">
+                <div class="title">Quote of the Day</div>
+                <p id="quote"></p>
+                <p id="quoteAuthor"></p>
+            </div>
+
+            <!-- Daily Image -->
+            <div class="card" id="imageCard">
+                <div class="title">Daily Image</div>
+                <img id="dailyImage" src="" alt="Cozy Image" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Location ---
+        let LAT = localStorage.getItem('LAT') ? Number(localStorage.getItem('LAT')) : 51.50;
+        let LON = localStorage.getItem('LON') ? Number(localStorage.getItem('LON')) : 0.13;
+        function showLocationPrompt() {
+            const lat = prompt("Enter Latitude:", LAT);
+            const lon = prompt("Enter Longitude:", LON);
+            if (lat && lon) {
+                LAT = parseFloat(lat);
+                LON = parseFloat(lon);
+                localStorage.setItem('LAT', LAT);
+                localStorage.setItem('LON', LON);
+                updateAll();
+            }
+        }
+
+        // --- Clock ---
+        function updateClock() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+            const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+            document.getElementById("date").textContent = dateStr;
+            document.getElementById("clock").textContent = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Weather ---
+        const ICONS = { 0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️", 45: "🌫️", 48: "🌫️", 51: "🌧️", 53: "🌧️", 55: "🌧️", 61: "🌧️", 63: "🌧️", 65: "🌧️", 71: "❄️", 73: "❄️", 75: "❄️", 80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️" };
+        async function getWeather() {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&hourly=temperature_2m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto`;
+            const res = await fetch(url);
+            const data = await res.json();
+            updateWeather(data);
+            updatePrecip(data);
+        }
+        function updateWeather(data) {
+            console.log(data.reason);
+            const w = data.current_weather;
+            const temp = Math.round(w.temperature);
+            const icon = ICONS[w.weathercode] || "🌈";
+            const max = data.daily.temperature_2m_max[0];
+            const min = data.daily.temperature_2m_min[0];
+            document.getElementById("currentTemp").textContent = `${temp}°F`;
+            document.getElementById("weatherIcon").innerHTML = icon;
+            document.getElementById("minMaxTemp").textContent = `${min}° / ${max}°`;
+            document.getElementById("weatherInfo").textContent = `Lat: ${LAT.toFixed(2)}, Lon: ${LON.toFixed(2)}`;
+        }
+        function updatePrecip(data) {
+            const hours = data.hourly.time.slice(0, 12);
+            const precip = data.hourly.precipitation.slice(0, 12);
+            let html = '';
+            for (let i = 0; i < hours.length; i++) {
+                const d = new Date(hours[i]);
+                const label = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                const p = precip[i];
+                let color = "#7fb3ff";
+                if (p >= 5) color = "#2e86de";
+                else if (p >= 1) color = "#5dade2";
+                html += `<div class='precip-item'>
+            <div class='precip-bar' style='height:${p * 8}px;background:${color}'></div>
+            <div class='precip-hour'>${label}</div>
+        </div>`;
+            }
+            document.querySelector('#weatherCard .precip-grid').innerHTML = html;
+        }
+
+        // --- ISS ---
+        async function getISS() {
+            try {
+                const res = await fetch(`http://api.open-notify.org/iss-pass.json?lat=${LAT}&lon=${LON}`);
+                const data = await res.json();
+                const nextPass = new Date(data.response[0].risetime * 1000).toLocaleTimeString();
+                document.getElementById("issPass").textContent = nextPass;
+            } catch {
+                document.getElementById("issPass").textContent = "Unavailable";
+            }
+        }
+
+        // --- Daily Activity ---
+        async function getActivity() {
+            try {
+                const res = await fetch("https://www.boredapi.com/api/activity/");
+                const data = await res.json();
+                document.getElementById("activity").textContent = data.activity;
+            } catch {
+                document.getElementById("activity").textContent = "Unavailable";
+            }
+        }
+
+        // --- Joke ---
+        async function getJoke() {
+            try {
+                const res = await fetch("https://official-joke-api.appspot.com/random_joke");
+                const data = await res.json();
+                document.getElementById("joke").textContent = `${data.setup} ... ${data.punchline}`;
+            } catch {
+                document.getElementById("joke").textContent = "Unavailable";
+            }
+        }
+
+        // --- Horoscope ---
+        async function getHoroscope() {
+            try {
+                const res = await fetch("https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=Capricorn&day=TODAY");
+                const data = await res.json();
+                document.getElementById("currentHoroscope").textContent = data.horoscope;
+            } catch {
+                document.getElementById("currentHoroscope").textContent = "Unavailable";
+            }
+        }
+
+        // --- Random Fact ---
+        async function getWord() {
+            try {
+                const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/random/summary");
+                const data = await res.json();
+                document.getElementById("wordOfTheDay").textContent = data.title;
+                document.getElementById("definition").textContent = data.extract;
+            } catch {
+                document.getElementById("word").innerHTML = "Unavailable";
+            }
+        }
+
+        // --- Quote ---
+        async function getQuote() {
+            try {
+                const res = await fetch("https://zenquotes.io/api/random");
+                const data = await res.json();
+                document.getElementById("quote").innerText = `"${data[0].q}"`;
+                document.getElementById("quoteAuthor").innerText = `— ${data[0].a}`;
+            } catch {
+                document.getElementById("quote").innerText = "Unavailable";
+                document.getElementById("quoteAuthor").innerText = "";
+            }
+        }
+
+        // --- Daily Image ---
+        function getImage() {
+            const url = "https://source.unsplash.com/600x200/?nature,cozy";
+            document.getElementById("dailyImage").src = url;
+        }
+
+        // --- Headlines (via rss2json) ---
+        async function getNews() {
+            try {
+                const feedUrl = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+                const data = await res.json();
+                const list = document.getElementById("headlines");
+                list.innerHTML = "";
+                data.items.slice(0, 5).forEach(item => {
+                    const li = document.createElement("li");
+                    const a = document.createElement("a");
+                    a.href = item.link;
+                    a.textContent = item.title;
+                    a.target = "_blank";
+                    li.appendChild(a);
+                    list.appendChild(li);
+                });
+            } catch {
+                document.getElementById("headlines").innerHTML = "<li>Unavailable</li>";
+            }
+        }
+
+        // --- Update All ---
+        function updateAll() {
+            getWeather();
+            getISS();
+            getActivity();
+            getJoke();
+            getHoroscope();
+            getWord();
+            getQuote();
+            getImage();
+            getNews();
+        }
+        updateAll();
+        setInterval(updateAll, 30 * 60 * 1000);
+    </script>
+</body>
+
+</html>
