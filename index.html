@@ -6,387 +6,416 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="CozyDash" />
+    <meta name="format-detection" content="telephone=no" />
     
     <title>Cozy Dashboard</title>
     
     <style>
-        /* CSS Reset & Legacy Fixes */
-        * { box-sizing: border-box; }
+        /* CSS Cleanups for older WebKit */
         body {
             margin: 0;
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: -apple-system, Helvetica, Arial, sans-serif;
             background: #f0e8de;
             color: #5c5042;
+            display: -webkit-flex; /* Old WebKit prefix */
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-align-items: center;
+            align-items: center;
             padding: 10px;
-            /* Prevent rubber-banding on iOS */
-            height: 100vh;
-            overflow-y: scroll; 
-            -webkit-overflow-scrolling: touch;
+            min-height: 100vh;
+            /* Prevent text selection to make it feel like an App */
+            -webkit-user-select: none; 
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .grid {
-            max-width: 768px;
-            margin: 0 auto;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            width: 100%;
+            max-width: 768px; /* Optimized for iPad width */
+            padding-top: 20px;
         }
 
         .card {
-            background: #fffcf9;
-            border-radius: 12px;
+            background: #fffcf9; /* Removed gradient for performance on old GPU */
+            border-radius: 15px;
             padding: 15px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 1px solid #efe6dc;
             text-align: center;
             position: relative;
-            display: block; /* Ensure block level for old webkit */
+        }
+
+        .gear {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 20px;
+            opacity: 0.5;
+            cursor: pointer;
         }
 
         .title {
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             font-weight: bold;
             color: #9c8c74;
             margin-bottom: 8px;
-            margin-top: 0;
         }
 
-        /* Weather Section */
-        #clock { font-size: 36px; font-weight: 300; color: #558b76; margin-bottom: 5px; }
-        #date { font-size: 16px; color: #8c7b66; margin-bottom: 10px; }
-        
-        .weather-row {
-            width: 100%;
-            display: table; /* Fallback for no-flexbox */
-            margin-top: 10px;
+        /* Clock */
+        #clock {
+            font-size: 40px;
+            font-weight: bold;
+            color: #558b76;
         }
-        .w-col {
-            display: table-cell;
-            vertical-align: middle;
+        #date {
+            font-size: 18px;
+            color: #8c7b66;
+        }
+
+        /* Weather Layout */
+        .weather-row {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: space-around;
+            justify-content: space-around;
+            -webkit-align-items: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .large-temp { font-size: 50px; color: #333; }
+        .condition-icon { font-size: 45px; }
+
+        /* Precip Graph */
+        .precip-grid {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-align-items: flex-end;
+            align-items: flex-end;
+            height: 50px;
+            margin-top: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .precip-item {
+            -webkit-flex: 1;
+            flex: 1;
             text-align: center;
         }
-        .large-temp { font-size: 48px; color: #333; font-weight: bold;}
-        .condition-icon { font-size: 40px; }
-        
-        /* Flexbox hacks for iPad 2 */
-        .flex-container {
-            display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
-            display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
-            display: -ms-flexbox;      /* TWEENER - IE 10 */
-            display: -webkit-flex;     /* NEW - Chrome */
-            display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
-            
+        .precip-bar {
+            width: 80%;
+            margin: 0 auto;
+            background: #a4c5e0;
+            min-height: 2px;
+        }
+        .precip-hour {
+            font-size: 9px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        /* Headlines */
+        #newsCard ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+        #newsCard li { padding: 8px 0; border-bottom: 1px solid #eee; }
+        #newsCard a { text-decoration: none; color: #444; font-size: 14px; display: block;}
+
+        /* Grid for smaller cards */
+        .half-grid {
+            display: -webkit-flex;
+            display: flex;
             -webkit-flex-wrap: wrap;
             flex-wrap: wrap;
             -webkit-justify-content: space-between;
             justify-content: space-between;
         }
-        
-        .half-card {
-            width: 48%;
-            margin-bottom: 12px;
+        .half-card-wrapper {
+            width: 48%; /* Flex-basis fallback for old flexbox */
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
         }
-
-        /* Content Typography */
-        .content-text { font-size: 15px; line-height: 1.4; color: #4a4036; }
+        
+        .content-text { font-size: 16px; color: #4a4036; line-height: 1.4; }
         .sub-text { font-size: 12px; color: #999; margin-top: 5px; font-style: italic; }
 
-        /* Images */
-        #dailyImage {
+        img#dailyImage {
             width: 100%;
-            height: 160px;
-            background-color: #ddd; /* Placeholder color */
-            object-fit: cover;
-            border-radius: 8px;
-            display: block;
-        }
-
-        /* News List */
-        ul#headlines { list-style: none; padding: 0; margin: 0; text-align: left; }
-        ul#headlines li { 
-            padding: 8px 0; 
-            border-bottom: 1px solid #f0e6dc; 
-            font-size: 14px;
-        }
-        ul#headlines a { text-decoration: none; color: #333; }
-
-        /* Gear Button */
-        .gear-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
-            opacity: 0.3;
-            cursor: pointer;
+            height: 180px;
+            object-fit: cover; /* Might degrade gracefully on iPad 2 */
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
     <div class="grid">
-        
         <div class="card" id="weatherCard">
-            <div class="gear-btn" onclick="askLocation()">⚙️</div>
+            <div class="gear" onclick="showLocationPrompt()">⚙️</div>
             <div id="date">Loading...</div>
-            <div id="clock">00:00</div>
+            <div id="clock">--:--</div>
             
             <div class="weather-row">
-                <div class="w-col" style="width: 30%">
-                    <div class="condition-icon" id="weatherIcon">🌤️</div>
-                </div>
-                <div class="w-col" style="width: 40%">
-                    <div class="large-temp" id="currentTemp">--°</div>
-                </div>
-                <div class="w-col" style="width: 30%; text-align: left; padding-left: 10px;">
-                    <div id="minMaxTemp" style="font-size: 14px; font-weight:bold;">-- / --</div>
-                    <div id="moonPhase" style="font-size: 12px; margin-top: 4px; color: #777;">Moon: --</div>
+                <div class="condition-icon" id="weatherIcon">🌤️</div>
+                <div class="large-temp" id="currentTemp">--°</div>
+                <div style="text-align: left;">
+                    <div id="minMaxTemp">L:-- H:--</div>
+                    <div id="sunData" style="font-size: 12px; margin-top:4px;"></div>
                 </div>
             </div>
-            <div id="weatherError" style="font-size: 10px; color: #cc5555; margin-top: 5px; display:none;">
-                Weather Data Offline (SSL Error)
-            </div>
+            <div id="weatherInfo" style="font-size:12px; color:#aaa;"></div>
+            <div class="precip-grid" id="precipContainer"></div>
         </div>
 
-        <div class="card">
-            <div class="title">Headlines</div>
+        <div class="card" id="newsCard">
+            <div class="title">Top Headlines</div>
             <ul id="headlines"><li>Loading...</li></ul>
         </div>
 
-        <div class="flex-container">
-            
-            <div class="card half-card">
-                <div class="title">Suggested Activity</div>
-                <div class="content-text" id="activity">...</div>
+        <div class="half-grid">
+            <div class="half-card-wrapper">
+                <div class="card">
+                    <div class="title">ISS Location</div>
+                    <div class="content-text" id="issLocation">Tracking...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Activity</div>
+                    <div class="content-text" id="activity">...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Daily Vibe</div>
+                    <div class="content-text" id="horoscope">...</div>
+                </div>
             </div>
 
-            <div class="card half-card">
-                <div class="title">Moon Phase</div>
-                <div class="content-text" id="moonText">...</div>
-                <div class="sub-text" id="moonIcon" style="font-size: 24px;">🌑</div>
+            <div class="half-card-wrapper">
+                <div class="card">
+                    <div class="title">Fact</div>
+                    <div class="content-text" id="fact">...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Quote</div>
+                    <div class="content-text" id="quote">...</div>
+                    <div class="sub-text" id="quoteAuthor"></div>
+                </div>
+                <div class="card" style="padding:5px;">
+                    <img id="dailyImage" src="" />
+                </div>
             </div>
-
-            <div class="card half-card">
-                <div class="title">Random Fact</div>
-                <div class="content-text" id="fact">...</div>
-            </div>
-
-            <div class="card half-card">
-                <div class="title">Daily Vibe</div>
-                <div class="content-text" id="horoscope">...</div>
-            </div>
-
-            <div class="card" style="width: 100%; padding: 5px;">
-                <img id="dailyImage" src="" />
-                <div class="title" style="margin-top: 5px;">Daily View</div>
-            </div>
-            
-            <div class="card" style="width: 100%;">
-                <div class="title">Quote</div>
-                <div class="content-text" id="quote">...</div>
-                <div class="sub-text" id="quoteAuthor"></div>
-            </div>
-
         </div>
     </div>
 
     <script>
-        // --- DATA SETS (Local data to bypass API failures) ---
-        var FACTS = [
-            "Honey never spoils.", "Octopuses have three hearts.", "Bananas are berries.",
-            "Wombat poop is cube-shaped.", "The Eiffel Tower can be 15 cm taller in summer.",
-            "Venus is the only planet to spin clockwise.", "Nutmeg is a hallucinogen.",
-            "A cloud can weigh more than a million pounds.", "A bolt of lightning contains enough energy to toast 100,000 slices of bread."
-        ];
-
+        // --- 1. CONFIGURATION ---
         var ACTIVITIES = [
-            "Read a book chapter", "Water the plants", "Do a 10 min stretch",
-            "Listen to a classic album", "Write a journal entry", "Organize one drawer",
-            "Make herbal tea", "Watch a documentary", "Call a relative"
+            "Read a chapter", "Water plants", "15m Walk", 
+            "Listen to music", "Stretch", "Journaling", 
+            "Tidy desk", "Cook new recipe", "Call a friend", 
+            "Meditate", "Draw something", "Clean email"
         ];
 
         var VIBES = [
-            "Take it easy today.", "Focus on the good.", "You are enough.",
-            "Small steps count.", "Breathe deeply.", "Trust the process.",
-            "Creativity is flowing.", "Rest is productive.", "Be kind to you."
+            "Focus on you.", "Creativity flows.", "Be patient.", 
+            "Good surprise coming.", "Take it slow.", "Energy is high.",
+            "Trust intuition.", "Be kind.", "Rest is good."
         ];
 
-        // --- LOCATION ---
-        var LAT = localStorage.getItem('LAT') || 40.71;
-        var LON = localStorage.getItem('LON') || -74.00;
+        var ICONS = { 
+            0:"☀️", 1:"🌤️", 2:"⛅", 3:"☁️", 45:"🌫️", 
+            51:"🌧️", 61:"🌧️", 71:"❄️", 80:"🌦️", 95:"⛈️" 
+        };
 
-        function askLocation() {
-            var l = prompt("Enter Lat,Lon (e.g. 40.71,-74.00)", LAT + "," + LON);
-            if(l && l.indexOf(',') > -1) {
-                var parts = l.split(',');
-                LAT = parseFloat(parts[0]);
-                LON = parseFloat(parts[1]);
+        // --- 2. LEGACY AJAX HELPER (No Fetch API) ---
+        function makeRequest(url, successCallback, errorCallback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        successCallback(data);
+                    } catch (e) {
+                        if(errorCallback) errorCallback();
+                    }
+                } else {
+                    if(errorCallback) errorCallback();
+                }
+            };
+            xhr.onerror = function() {
+                if(errorCallback) errorCallback();
+            };
+            xhr.send();
+        }
+
+        // --- 3. STATE ---
+        var LAT = localStorage.getItem('LAT') ? parseFloat(localStorage.getItem('LAT')) : 40.71;
+        var LON = localStorage.getItem('LON') ? parseFloat(localStorage.getItem('LON')) : -74.00;
+
+        function showLocationPrompt() {
+            var lat = prompt("Latitude:", LAT);
+            var lon = prompt("Longitude:", LON);
+            if (lat && lon) {
+                LAT = parseFloat(lat);
+                LON = parseFloat(lon);
                 localStorage.setItem('LAT', LAT);
                 localStorage.setItem('LON', LON);
                 updateAll();
             }
         }
 
-        // --- HELPER: Moon Phase Calculator (No API) ---
-        function getMoonPhase() {
-            var d = new Date();
-            var year = d.getFullYear();
-            var month = d.getMonth() + 1;
-            var day = d.getDate();
-            
-            var c = e = j = 0;
-            if (month < 3) { year--; month += 12; }
-            ++month;
-            c = 365.25 * year;
-            e = 30.6 * month;
-            j = c + e + day - 694039.09; // jd is total days elapsed
-            j /= 29.53058; // divide by the moon cycle
-            var b = parseInt(j); // int(j)
-            j -= b; // leave the fractional part of j
-            b = Math.round(j * 8); // scale fraction from 0-8
-            if (b >= 8) b = 0; // 0 and 8 are the same
-            
-            var phases = {
-                0: ["New Moon", "🌑"], 1: ["Waxing Crescent", "🌒"], 2: ["First Quarter", "🌓"],
-                3: ["Waxing Gibbous", "🌔"], 4: ["Full Moon", "🌕"], 5: ["Waning Gibbous", "🌖"],
-                6: ["Last Quarter", "🌗"], 7: ["Waning Crescent", "🌘"]
-            };
-            return phases[b];
-        }
-
-        // --- HELPER: AJAX Request ---
-        function fetchJSON(url, callback, failCallback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.timeout = 5000; // 5 second timeout
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        callback(data);
-                    } catch (e) { if(failCallback) failCallback(); }
-                } else { if(failCallback) failCallback(); }
-            };
-            xhr.onerror = function() { if(failCallback) failCallback(); };
-            xhr.ontimeout = function() { if(failCallback) failCallback(); };
-            xhr.send();
-        }
-
-        // --- FUNCTIONS ---
+        // --- 4. FUNCTIONS ---
 
         function updateClock() {
             var now = new Date();
-            var h = now.getHours();
-            var m = now.getMinutes();
-            var ampm = h >= 12 ? 'pm' : 'am';
-            h = h % 12;
-            h = h ? h : 12; // the hour '0' should be '12'
-            m = m < 10 ? '0'+m : m;
-            
+            // iPad 2 might struggle with some locale options, keeping it simple
             var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             
-            document.getElementById('clock').innerHTML = h + ":" + m + "<span style='font-size:16px'>" + ampm + "</span>";
-            document.getElementById('date').innerHTML = days[now.getDay()] + ", " + months[now.getMonth()] + " " + now.getDate();
+            var dayName = days[now.getDay()];
+            var monthName = months[now.getMonth()];
+            var dateNum = now.getDate();
+            
+            var hours = now.getHours();
+            var mins = now.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            mins = mins < 10 ? '0'+mins : mins;
+            
+            document.getElementById("date").innerHTML = dayName + ", " + monthName + " " + dateNum;
+            document.getElementById("clock").innerHTML = hours + ":" + mins + " " + ampm;
         }
 
-        function updateWeather() {
-            // Using Open-Meteo. If this fails on iPad 2, the "weatherError" div will show.
-            var url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON + "&current_weather=true&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto";
+        function getWeather() {
+            var url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON + "&current_weather=true&hourly=precipitation&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto";
             
-            fetchJSON(url, function(data) {
+            makeRequest(url, function(data) {
+                // Current
                 var w = data.current_weather;
-                var daily = data.daily;
+                var iconCode = w.weathercode;
+                // Simple fallback for icon map
+                var icon = ICONS[iconCode] ? ICONS[iconCode] : "🌈";
                 
-                document.getElementById('currentTemp').innerHTML = Math.round(w.temperature) + "°";
-                document.getElementById('minMaxTemp').innerHTML = Math.round(daily.temperature_2m_min[0]) + "° / " + Math.round(daily.temperature_2m_max[0]) + "°";
-                document.getElementById('weatherError').style.display = "none";
+                document.getElementById("currentTemp").innerHTML = Math.round(w.temperature) + "°";
+                document.getElementById("weatherIcon").innerHTML = icon;
                 
-                // Simple Icon Logic
-                var code = w.weathercode;
-                var icon = "☁️";
-                if(code < 2) icon = "☀️";
-                else if(code < 4) icon = "⛅";
-                else if(code < 60) icon = "🌫️";
-                else if(code < 80) icon = "🌧️";
-                else if(code < 90) icon = "⛈️";
-                else icon = "🌨️";
-                document.getElementById('weatherIcon').innerHTML = icon;
+                // Daily
+                var max = Math.round(data.daily.temperature_2m_max[0]);
+                var min = Math.round(data.daily.temperature_2m_min[0]);
+                // Parse time carefully for old browsers
+                var sunrise = data.daily.sunrise[0].split('T')[1];
+                var sunset = data.daily.sunset[0].split('T')[1];
+                
+                document.getElementById("minMaxTemp").innerHTML = "L:" + min + "° H:" + max + "°";
+                document.getElementById("sunData").innerHTML = "☀️ " + sunrise + " &nbsp; 🌙 " + sunset;
+                document.getElementById("weatherInfo").innerHTML = LAT.toFixed(2) + ", " + LON.toFixed(2);
 
-            }, function() {
-                // If weather fails (CORS/SSL), show error
-                document.getElementById('weatherError').style.display = "block";
-                document.getElementById('currentTemp').innerHTML = "--";
+                // Precip Graph (Simple loop)
+                var currentHour = new Date().getHours();
+                var precipHTML = "";
+                // Grab next 6 hours
+                for(var i=0; i<6; i++) {
+                    var idx = currentHour + i;
+                    if(idx >= 24) idx = 23; // prevention
+                    var p = data.hourly.precipitation[idx];
+                    var height = (p * 20); 
+                    if(height > 40) height = 40;
+                    if(height < 2) height = 2;
+                    
+                    var color = p > 0 ? "#5dade2" : "#e0e0e0";
+                    
+                    precipHTML += "<div class='precip-item'>" +
+                        "<div class='precip-bar' style='height:" + height + "px; background:" + color + "'></div>" +
+                        "<div class='precip-hour'>+" + i + "h</div>" +
+                    "</div>";
+                }
+                document.getElementById("precipContainer").innerHTML = precipHTML;
             });
         }
 
-        function updateStaticContent() {
-            // Local Activity
-            var act = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
-            document.getElementById('activity').innerHTML = act;
-
-            // Local Fact
-            var fact = FACTS[Math.floor(Math.random() * FACTS.length)];
-            document.getElementById('fact').innerHTML = fact;
-
-            // Local Vibe
-            var vibe = VIBES[Math.floor(Math.random() * VIBES.length)];
-            document.getElementById('horoscope').innerHTML = vibe;
-
-            // Moon Phase (Calculated)
-            var moon = getMoonPhase();
-            document.getElementById('moonText').innerHTML = moon[0];
-            document.getElementById('moonIcon').innerHTML = moon[1];
-            document.getElementById('moonPhase').innerHTML = "Moon: " + moon[1];
-            
-            // Image - Switching to Picsum which is usually more reliable on old SSL
-            var rand = Math.floor(Math.random() * 100);
-            document.getElementById('dailyImage').src = "https://picsum.photos/600/300?grayscale&random=" + rand;
+        function getISS() {
+            makeRequest('https://api.wheretheiss.at/v1/satellites/25544', function(data) {
+                document.getElementById("issLocation").innerHTML = 
+                    "Lat: " + data.latitude.toFixed(1) + "<br>Lon: " + data.longitude.toFixed(1);
+            });
         }
 
-        function updateNews() {
-            // Using RSS2JSON which you confirmed works
-            var feed = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
-            var url = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feed);
-            
-            fetchJSON(url, function(data) {
-                var list = document.getElementById('headlines');
+        function getFact() {
+            // Using a simpler API that returns plain text or easy JSON
+            makeRequest('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', function(data) {
+                document.getElementById("fact").innerHTML = data.text;
+            });
+        }
+
+        function getQuote() {
+            makeRequest('https://dummyjson.com/quotes/random', function(data) {
+                document.getElementById("quote").innerHTML = '"' + data.quote + '"';
+                document.getElementById("quoteAuthor").innerHTML = "- " + data.author;
+            });
+        }
+
+        function getNews() {
+            // Using a proxy to convert RSS to JSON
+            var feed = encodeURIComponent("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml");
+            makeRequest("https://api.rss2json.com/v1/api.json?rss_url=" + feed, function(data) {
+                var list = document.getElementById("headlines");
                 list.innerHTML = "";
-                for(var i=0; i<4; i++) {
+                // Only show 3 items
+                for(var i=0; i<3; i++) {
                     if(data.items[i]) {
                         var item = data.items[i];
-                        var li = document.createElement('li');
-                        li.innerHTML = "<a href='" + item.link + "'>" + item.title + "</a>";
+                        var li = document.createElement("li");
+                        var a = document.createElement("a");
+                        a.href = item.link;
+                        a.innerHTML = item.title;
+                        li.appendChild(a);
                         list.appendChild(li);
                     }
                 }
             });
         }
 
-        function updateQuote() {
-            fetchJSON('https://dummyjson.com/quotes/random', function(data) {
-                document.getElementById('quote').innerHTML = '"' + data.quote + '"';
-                document.getElementById('quoteAuthor').innerHTML = "- " + data.author;
-            }, function() {
-                document.getElementById('quote').innerHTML = '"Stay Cozy."';
-            });
+        function getLocalContent() {
+            var rAct = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
+            document.getElementById("activity").innerHTML = rAct;
+
+            var rVibe = VIBES[Math.floor(Math.random() * VIBES.length)];
+            document.getElementById("horoscope").innerHTML = rVibe;
         }
 
-        function init() {
+        function getImage() {
+            // Random number to force refresh
+            var rand = Math.floor(Math.random() * 1000);
+            document.getElementById("dailyImage").src = "https://loremflickr.com/400/200/nature,calm?lock=" + rand;
+        }
+
+        function updateAll() {
             updateClock();
-            updateWeather();
-            updateStaticContent();
-            updateNews();
-            updateQuote();
+            getWeather();
+            getISS();
+            getFact();
+            getQuote();
+            getNews();
+            getLocalContent();
+            getImage();
         }
 
-        // --- RUN ---
-        init();
-        
-        // Timers
-        setInterval(updateClock, 1000); // Clock every second
-        setInterval(init, 1800000); // Refresh data every 30 mins
+        // --- 5. INITIALIZATION ---
+        // Run immediately
+        updateAll();
 
+        // Intervals
+        setInterval(updateClock, 1000);
+        setInterval(getISS, 10000);
+        setInterval(updateAll, 1800000); // 30 mins
     </script>
 </body>
 </html>
