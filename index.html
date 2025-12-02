@@ -1,207 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    
     <title>Cozy Dashboard</title>
+    
     <style>
+        /* CSS Cleanups for older WebKit */
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, Helvetica, Arial, sans-serif;
             background: #f0e8de;
             color: #5c5042;
+            display: -webkit-flex; /* Old WebKit prefix */
             display: flex;
+            -webkit-flex-direction: column;
             flex-direction: column;
+            -webkit-align-items: center;
             align-items: center;
             padding: 10px;
             min-height: 100vh;
+            /* Prevent text selection to make it feel like an App */
+            -webkit-user-select: none; 
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .grid {
+            display: -webkit-flex;
             display: flex;
+            -webkit-flex-direction: column;
             flex-direction: column;
-            gap: 12px;
             width: 100%;
-            max-width: 720px;
-            padding-top: 40px;
+            max-width: 768px; /* Optimized for iPad width */
+            padding-top: 20px;
         }
 
-        /* Card styling */
         .card {
-            background: linear-gradient(145deg, #fffcf9, #f7f0e9);
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 8px 20px rgba(107, 92, 74, 0.05);
+            background: #fffcf9; /* Removed gradient for performance on old GPU */
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 1px solid #efe6dc;
             text-align: center;
             position: relative;
-            transition: transform 0.2s ease;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Gear icon */
         .gear {
             position: absolute;
             top: 10px;
             right: 12px;
-            cursor: pointer;
-            font-size: 16px;
+            font-size: 20px;
             opacity: 0.5;
-            transition: opacity 0.2s;
-        }
-        
-        .gear:hover {
-            opacity: 1;
+            cursor: pointer;
         }
 
-        /* Titles */
         .title {
-            font-size: 13px;
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-weight: bold;
             color: #9c8c74;
+            margin-bottom: 8px;
         }
 
         /* Clock */
         #clock {
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 40px;
+            font-weight: bold;
             color: #558b76;
-            letter-spacing: -1px;
         }
         #date {
             font-size: 18px;
             color: #8c7b66;
-            margin-bottom: 4px;
         }
 
-        /* Weather */
+        /* Weather Layout */
         .weather-row {
+            display: -webkit-flex;
             display: flex;
+            -webkit-justify-content: space-around;
             justify-content: space-around;
+            -webkit-align-items: center;
             align-items: center;
             margin: 10px 0;
         }
-        .large-temp {
-            font-size: 48px;
-            font-weight: 600;
-            color: #333;
-        }
-        .condition-icon {
-            font-size: 42px;
-        }
-        #weatherInfo {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-        }
+        .large-temp { font-size: 50px; color: #333; }
+        .condition-icon { font-size: 45px; }
 
-        /* Precipitation Graph */
+        /* Precip Graph */
         .precip-grid {
+            display: -webkit-flex;
             display: flex;
+            -webkit-justify-content: space-between;
             justify-content: space-between;
+            -webkit-align-items: flex-end;
             align-items: flex-end;
             height: 50px;
             margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px dashed #e0d0c0;
+            border-bottom: 1px solid #ddd;
         }
         .precip-item {
+            -webkit-flex: 1;
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
         }
         .precip-bar {
-            width: 6px;
-            border-radius: 4px;
+            width: 80%;
+            margin: 0 auto;
             background: #a4c5e0;
             min-height: 2px;
         }
         .precip-hour {
             font-size: 9px;
-            color: #a09080;
-            margin-top: 4px;
-        }
-
-        /* Content Text */
-        .content-text {
-            font-size: 15px;
-            line-height: 1.5;
-            color: #4a4036;
-        }
-        .sub-text {
-            font-size: 13px;
-            color: #887868;
-            font-style: italic;
-            margin-top: 5px;
+            color: #999;
+            margin-top: 2px;
         }
 
         /* Headlines */
-        #newsCard ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-        }
-        #newsCard li {
-            padding: 6px 0;
-            border-bottom: 1px solid #f0e6dc;
-        }
-        #newsCard li:last-child { border-bottom: none; }
-        #newsCard a {
-            text-decoration: none;
-            color: #5c5042;
-            font-size: 13px;
-            font-weight: 500;
-            display: block;
-        }
-        #newsCard a:hover { color: #558b76; }
+        #newsCard ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+        #newsCard li { padding: 8px 0; border-bottom: 1px solid #eee; }
+        #newsCard a { text-decoration: none; color: #444; font-size: 14px; display: block;}
 
-        /* Image */
-        #imageCard { padding: 0; overflow: hidden; }
-        #imageCard img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
-        }
-        #imageCard .title-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #6b5c4a;
-        }
-
-        /* Grid System */
+        /* Grid for smaller cards */
         .half-grid {
+            display: -webkit-flex;
             display: flex;
+            -webkit-flex-wrap: wrap;
             flex-wrap: wrap;
-            gap: 12px;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
         }
-        .half-grid .card {
-            flex: 1 1 calc(30% - 12px);
-            min-width: 250px;
+        .half-card-wrapper {
+            width: 48%; /* Flex-basis fallback for old flexbox */
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+        
+        .content-text { font-size: 16px; color: #4a4036; line-height: 1.4; }
+        .sub-text { font-size: 12px; color: #999; margin-top: 5px; font-style: italic; }
+
+        img#dailyImage {
+            width: 100%;
+            height: 180px;
+            object-fit: cover; /* Might degrade gracefully on iPad 2 */
+            border-radius: 10px;
         }
     </style>
 </head>
-
 <body>
+
     <div class="grid">
         <div class="card" id="weatherCard">
-            <span class="gear" onclick="showLocationPrompt()" title="Set Location">⚙️</span>
-            
+            <div class="gear" onclick="showLocationPrompt()">⚙️</div>
             <div id="date">Loading...</div>
             <div id="clock">--:--</div>
             
@@ -209,84 +167,101 @@
                 <div class="condition-icon" id="weatherIcon">🌤️</div>
                 <div class="large-temp" id="currentTemp">--°</div>
                 <div style="text-align: left;">
-                    <div id="minMaxTemp" style="font-weight: bold;">L:--° H:--°</div>
-                    <div id="sunData" style="font-size: 12px;">☀️ --:-- 🌙 --:--</div>
+                    <div id="minMaxTemp">L:-- H:--</div>
+                    <div id="sunData" style="font-size: 12px; margin-top:4px;"></div>
                 </div>
             </div>
-            <div id="weatherInfo">Location: Unknown</div>
-            
-            <div class="precip-grid" id="precipContainer">
-                </div>
+            <div id="weatherInfo" style="font-size:12px; color:#aaa;"></div>
+            <div class="precip-grid" id="precipContainer"></div>
         </div>
 
         <div class="card" id="newsCard">
-            <div class="title">New York Times Top Stories</div>
-            <ul id="headlines"><li>Loading headlines...</li></ul>
+            <div class="title">Top Headlines</div>
+            <ul id="headlines"><li>Loading...</li></ul>
         </div>
 
         <div class="half-grid">
-            <div class="card">
-                <div class="title">Current ISS Location</div>
-                <div class="content-text" id="issLocation">Tracking...</div>
-                <div class="sub-text" style="font-size: 11px;">(Live Coordinates)</div>
+            <div class="half-card-wrapper">
+                <div class="card">
+                    <div class="title">ISS Location</div>
+                    <div class="content-text" id="issLocation">Tracking...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Activity</div>
+                    <div class="content-text" id="activity">...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Daily Vibe</div>
+                    <div class="content-text" id="horoscope">...</div>
+                </div>
             </div>
 
-            <div class="card">
-                <div class="title">Suggested Activity</div>
-                <div class="content-text" id="activity">Loading...</div>
-            </div>
-
-            <div class="card">
-                <div class="title">Did You Know?</div>
-                <div class="content-text" id="fact">Loading...</div>
-            </div>
-
-            <div class="card">
-                <div class="title">Daily Vibe</div>
-                <div class="content-text" id="horoscope">Loading...</div>
-            </div>
-
-            <div class="card">
-                <div class="title">Quote of the Day</div>
-                <div class="content-text" id="quote">"..."</div>
-                <div class="sub-text" id="quoteAuthor"></div>
-            </div>
-
-            <div class="card" id="imageCard">
-                <img id="dailyImage" src="" alt="Nature Image" />
-                <div class="title-overlay">Daily View</div>
+            <div class="half-card-wrapper">
+                <div class="card">
+                    <div class="title">Fact</div>
+                    <div class="content-text" id="fact">...</div>
+                </div>
+                <div class="card">
+                    <div class="title">Quote</div>
+                    <div class="content-text" id="quote">...</div>
+                    <div class="sub-text" id="quoteAuthor"></div>
+                </div>
+                <div class="card" style="padding:5px;">
+                    <img id="dailyImage" src="" />
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Configuration & Local Data Fallbacks ---
-        
-        // Local Activities (BoredAPI replacement - reliable & offline friendly)
-        const ACTIVITIES = [
-            "Read a chapter of a book", "Water your plants", "Take a 15-minute walk", 
-            "Listen to a new album", "Stretch for 10 minutes", "Write in a journal", 
-            "Organize your desk", "Cook a new recipe", "Call a friend", "Meditate for 5 minutes",
-            "Draw a doodle", "Watch a documentary", "Clean out your email inbox", "Make a cup of herbal tea",
-            "Learn 5 words in a new language", "Do a crossword puzzle", "Update your resume", "Back up your photos"
+        // --- 1. CONFIGURATION ---
+        var ACTIVITIES = [
+            "Read a chapter", "Water plants", "15m Walk", 
+            "Listen to music", "Stretch", "Journaling", 
+            "Tidy desk", "Cook new recipe", "Call a friend", 
+            "Meditate", "Draw something", "Clean email"
         ];
 
-        // Local Horoscopes/Vibes (API replacement)
-        const VIBES = [
-            "Today is a good day to focus on yourself.", "Creativity flows through you today.", 
-            "Patience is your superpower right now.", "A pleasant surprise is around the corner.",
-            "Take it slow; there is no rush.", "Your energy is contagious today.",
-            "Focus on the solution, not the problem.", "Rest is productive too.",
-            "Trust your intuition.", "Be kind to yourself today."
+        var VIBES = [
+            "Focus on you.", "Creativity flows.", "Be patient.", 
+            "Good surprise coming.", "Take it slow.", "Energy is high.",
+            "Trust intuition.", "Be kind.", "Rest is good."
         ];
 
-        // --- Location Logic ---
-        let LAT = localStorage.getItem('LAT') ? Number(localStorage.getItem('LAT')) : 40.71; // Default NY
-        let LON = localStorage.getItem('LON') ? Number(localStorage.getItem('LON')) : -74.00;
+        var ICONS = { 
+            0:"☀️", 1:"🌤️", 2:"⛅", 3:"☁️", 45:"🌫️", 
+            51:"🌧️", 61:"🌧️", 71:"❄️", 80:"🌦️", 95:"⛈️" 
+        };
+
+        // --- 2. LEGACY AJAX HELPER (No Fetch API) ---
+        function makeRequest(url, successCallback, errorCallback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        successCallback(data);
+                    } catch (e) {
+                        if(errorCallback) errorCallback();
+                    }
+                } else {
+                    if(errorCallback) errorCallback();
+                }
+            };
+            xhr.onerror = function() {
+                if(errorCallback) errorCallback();
+            };
+            xhr.send();
+        }
+
+        // --- 3. STATE ---
+        var LAT = localStorage.getItem('LAT') ? parseFloat(localStorage.getItem('LAT')) : 40.71;
+        var LON = localStorage.getItem('LON') ? parseFloat(localStorage.getItem('LON')) : -74.00;
 
         function showLocationPrompt() {
-            const lat = prompt("Enter Latitude (e.g., 51.50):", LAT);
-            const lon = prompt("Enter Longitude (e.g., -0.12):", LON);
+            var lat = prompt("Latitude:", LAT);
+            var lon = prompt("Longitude:", LON);
             if (lat && lon) {
                 LAT = parseFloat(lat);
                 LON = parseFloat(lon);
@@ -296,141 +271,132 @@
             }
         }
 
-        // --- Clock ---
+        // --- 4. FUNCTIONS ---
+
         function updateClock() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-            const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-            document.getElementById("date").textContent = dateStr;
-            document.getElementById("clock").textContent = timeStr;
+            var now = new Date();
+            // iPad 2 might struggle with some locale options, keeping it simple
+            var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            
+            var dayName = days[now.getDay()];
+            var monthName = months[now.getMonth()];
+            var dateNum = now.getDate();
+            
+            var hours = now.getHours();
+            var mins = now.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            mins = mins < 10 ? '0'+mins : mins;
+            
+            document.getElementById("date").innerHTML = dayName + ", " + monthName + " " + dateNum;
+            document.getElementById("clock").innerHTML = hours + ":" + mins + " " + ampm;
         }
 
-        // --- Weather (Open-Meteo: Free, No Key, CORS Friendly) ---
-        const ICONS = { 0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️", 45: "🌫️", 48: "🌫️", 51: "🌧️", 53: "🌧️", 55: "🌧️", 61: "🌧️", 63: "🌧️", 65: "🌧️", 71: "❄️", 73: "❄️", 75: "❄️", 80: "🌦️", 81: "🌦️", 82: "🌧️", 95: "⛈️", 96: "⛈️", 99: "⛈️" };
-        
-        async function getWeather() {
-            try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&hourly=precipitation_probability,precipitation&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto`;
-                const res = await fetch(url);
-                const data = await res.json();
-                
+        function getWeather() {
+            var url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON + "&current_weather=true&hourly=precipitation&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto";
+            
+            makeRequest(url, function(data) {
                 // Current
-                const w = data.current_weather;
-                document.getElementById("currentTemp").textContent = `${Math.round(w.temperature)}°`;
-                document.getElementById("weatherIcon").textContent = ICONS[w.weathercode] || "🌈";
+                var w = data.current_weather;
+                var iconCode = w.weathercode;
+                // Simple fallback for icon map
+                var icon = ICONS[iconCode] ? ICONS[iconCode] : "🌈";
+                
+                document.getElementById("currentTemp").innerHTML = Math.round(w.temperature) + "°";
+                document.getElementById("weatherIcon").innerHTML = icon;
                 
                 // Daily
-                const max = Math.round(data.daily.temperature_2m_max[0]);
-                const min = Math.round(data.daily.temperature_2m_min[0]);
-                const sunrise = data.daily.sunrise[0].split('T')[1];
-                const sunset = data.daily.sunset[0].split('T')[1];
-                document.getElementById("minMaxTemp").textContent = `L: ${min}°  H: ${max}°`;
-                document.getElementById("sunData").textContent = `☀️ ${sunrise}  🌙 ${sunset}`;
-                document.getElementById("weatherInfo").textContent = `Lat: ${LAT.toFixed(2)}, Lon: ${LON.toFixed(2)}`;
-
-                // Precip Graph (Next 12 hours)
-                const currentHour = new Date().getHours();
-                const precipData = data.hourly.precipitation.slice(currentHour, currentHour + 10);
-                let precipHTML = '';
+                var max = Math.round(data.daily.temperature_2m_max[0]);
+                var min = Math.round(data.daily.temperature_2m_min[0]);
+                // Parse time carefully for old browsers
+                var sunrise = data.daily.sunrise[0].split('T')[1];
+                var sunset = data.daily.sunset[0].split('T')[1];
                 
-                precipData.forEach((p, i) => {
-                    // Visual scaling: 0-2mm is the common range
-                    let height = Math.min(p * 10, 40); 
-                    // Add a tiny base height so 0 isn't invisible
-                    height = height < 2 ? 2 : height;
-                    const color = p > 0 ? '#5dade2' : '#e0e0e0';
-                    const timeLabel = (currentHour + i) % 24;
+                document.getElementById("minMaxTemp").innerHTML = "L:" + min + "° H:" + max + "°";
+                document.getElementById("sunData").innerHTML = "☀️ " + sunrise + " &nbsp; 🌙 " + sunset;
+                document.getElementById("weatherInfo").innerHTML = LAT.toFixed(2) + ", " + LON.toFixed(2);
+
+                // Precip Graph (Simple loop)
+                var currentHour = new Date().getHours();
+                var precipHTML = "";
+                // Grab next 6 hours
+                for(var i=0; i<6; i++) {
+                    var idx = currentHour + i;
+                    if(idx >= 24) idx = 23; // prevention
+                    var p = data.hourly.precipitation[idx];
+                    var height = (p * 20); 
+                    if(height > 40) height = 40;
+                    if(height < 2) height = 2;
                     
-                    precipHTML += `
-                        <div class='precip-item'>
-                            <div class='precip-bar' style='height:${height}px; background:${color};' title='${p}mm'></div>
-                            <div class='precip-hour'>${timeLabel}:00</div>
-                        </div>
-                    `;
-                });
+                    var color = p > 0 ? "#5dade2" : "#e0e0e0";
+                    
+                    precipHTML += "<div class='precip-item'>" +
+                        "<div class='precip-bar' style='height:" + height + "px; background:" + color + "'></div>" +
+                        "<div class='precip-hour'>+" + i + "h</div>" +
+                    "</div>";
+                }
                 document.getElementById("precipContainer").innerHTML = precipHTML;
-
-            } catch (e) {
-                console.error("Weather error", e);
-                document.getElementById("weatherInfo").textContent = "Weather unavailable";
-            }
+            });
         }
 
-        // --- ISS Location (WhereTheISS - HTTPS/CORS Friendly) ---
-        async function getISS() {
-            try {
-                const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
-                const data = await res.json();
-                document.getElementById("issLocation").textContent = 
-                    `Lat: ${data.latitude.toFixed(2)} \n Lon: ${data.longitude.toFixed(2)}`;
-            } catch {
-                document.getElementById("issLocation").textContent = "Signal Lost...";
-            }
+        function getISS() {
+            makeRequest('https://api.wheretheiss.at/v1/satellites/25544', function(data) {
+                document.getElementById("issLocation").innerHTML = 
+                    "Lat: " + data.latitude.toFixed(1) + "<br>Lon: " + data.longitude.toFixed(1);
+            });
         }
 
-        // --- Fact (UselessFacts - HTTPS/CORS Friendly) ---
-        async function getFact() {
-            try {
-                const res = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en');
-                const data = await res.json();
-                document.getElementById("fact").textContent = data.text;
-            } catch {
-                document.getElementById("fact").textContent = "Did you know? Facts are currently unavailable.";
-            }
+        function getFact() {
+            // Using a simpler API that returns plain text or easy JSON
+            makeRequest('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', function(data) {
+                document.getElementById("fact").innerHTML = data.text;
+            });
         }
 
-        // --- Quote (DummyJSON - HTTPS/CORS Friendly) ---
-        async function getQuote() {
-            try {
-                const res = await fetch('https://dummyjson.com/quotes/random');
-                const data = await res.json();
-                document.getElementById("quote").textContent = `"${data.quote}"`;
-                document.getElementById("quoteAuthor").textContent = `— ${data.author}`;
-            } catch {
-                document.getElementById("quote").textContent = "Stay cozy.";
-            }
+        function getQuote() {
+            makeRequest('https://dummyjson.com/quotes/random', function(data) {
+                document.getElementById("quote").innerHTML = '"' + data.quote + '"';
+                document.getElementById("quoteAuthor").innerHTML = "- " + data.author;
+            });
         }
 
-        // --- News (RSS2JSON - Limited but works) ---
-        async function getNews() {
-            try {
-                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frss.nytimes.com%2Fservices%2Fxml%2Frss%2Fnyt%2FHomePage.xml');
-                const data = await res.json();
-                const list = document.getElementById("headlines");
+        function getNews() {
+            // Using a proxy to convert RSS to JSON
+            var feed = encodeURIComponent("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml");
+            makeRequest("https://api.rss2json.com/v1/api.json?rss_url=" + feed, function(data) {
+                var list = document.getElementById("headlines");
                 list.innerHTML = "";
-                data.items.slice(0, 4).forEach(item => {
-                    const li = document.createElement("li");
-                    const a = document.createElement("a");
-                    a.href = item.link;
-                    a.textContent = item.title;
-                    a.target = "_blank";
-                    li.appendChild(a);
-                    list.appendChild(li);
-                });
-            } catch {
-                document.getElementById("headlines").innerHTML = "<li>News feed unavailable</li>";
-            }
+                // Only show 3 items
+                for(var i=0; i<3; i++) {
+                    if(data.items[i]) {
+                        var item = data.items[i];
+                        var li = document.createElement("li");
+                        var a = document.createElement("a");
+                        a.href = item.link;
+                        a.innerHTML = item.title;
+                        li.appendChild(a);
+                        list.appendChild(li);
+                    }
+                }
+            });
         }
 
-        // --- Local Data Generators (Activity & Horoscope) ---
         function getLocalContent() {
-            // Activity
-            const randomActivity = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
-            document.getElementById("activity").textContent = randomActivity;
+            var rAct = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
+            document.getElementById("activity").innerHTML = rAct;
 
-            // Horoscope/Vibe
-            const randomVibe = VIBES[Math.floor(Math.random() * VIBES.length)];
-            document.getElementById("horoscope").textContent = randomVibe;
+            var rVibe = VIBES[Math.floor(Math.random() * VIBES.length)];
+            document.getElementById("horoscope").innerHTML = rVibe;
         }
 
-        // --- Image (LoremFlickr - No Key) ---
         function getImage() {
-            // Adding a timestamp ensures it doesn't cache the same image forever
-            const url = `https://loremflickr.com/640/360/nature,calm,forest/all?lock=${Math.floor(Math.random()*100)}`;
-            document.getElementById("dailyImage").src = url;
+            // Random number to force refresh
+            var rand = Math.floor(Math.random() * 1000);
+            document.getElementById("dailyImage").src = "https://loremflickr.com/400/200/nature,calm?lock=" + rand;
         }
 
-        // --- Master Update ---
         function updateAll() {
             updateClock();
             getWeather();
@@ -442,14 +408,14 @@
             getImage();
         }
 
-        // Initial Load
+        // --- 5. INITIALIZATION ---
+        // Run immediately
         updateAll();
-        
-        // Timers
-        setInterval(updateClock, 1000); // Clock every second
-        setInterval(getISS, 10000);     // ISS updates every 10s for movement
-        setInterval(updateAll, 1800000); // Refresh everything else every 30 mins
+
+        // Intervals
+        setInterval(updateClock, 1000);
+        setInterval(getISS, 10000);
+        setInterval(updateAll, 1800000); // 30 mins
     </script>
 </body>
-
 </html>
